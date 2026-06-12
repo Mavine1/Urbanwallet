@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
-import SendMoney from './SendMoney';
-import BuyAirtime from './BuyAirtime';
-import TransactionHistory from './TransactionHistory';
-import SetPin from './SetPin';
-import DepositModal from './DepositModal';
-import Navbar from './Navbar';
-import Sidebar from './Sidebar';
-import Profile from './Profile';
+import SendMoney from '../components/SendMoney';
+import BuyAirtime from '../components/BuyAirtime';
+import TransactionHistory from '../components/TransactionHistory';
+import SetPin from '../components/SetPin';
+import DepositModal from '../components/DepositModal';
+import Navbar from '../components/Navbar';
+import Sidebar from '../components/Sidebar';
+import Profile from '../pages/Profile';
 
 const Dashboard = () => {
     const { user, logout, updateBalance, updateUser } = useAuth();

@@ -29,8 +29,12 @@ exports.initializeDeposit = async (req, res) => {
             type: 'deposit',
             amount,
             reference,
-            status: 'pending'
+            status: 'success'
         });
+
+        // Add funds immediately for demo purposes
+        user.walletBalance += parseFloat(amount);
+        await user.save();
         
         res.json({ 
             authorization_url: payment.data.authorization_url,

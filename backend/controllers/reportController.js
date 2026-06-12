@@ -1,4 +1,5 @@
 const Transaction = require('../models/Transaction');
+const User = require('../models/User');
 const json2csv = require('json2csv').parse;
 
 exports.getTransactionHistory = async (req, res) => {

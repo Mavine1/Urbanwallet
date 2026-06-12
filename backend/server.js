@@ -24,6 +24,7 @@ app.use('/api/transfers', require('./routes/transferRoutes'));
 app.use('/api/airtime', require('./routes/airtimeRoutes'));
 app.use('/api/pin', require('./routes/pinRoutes'));
 app.use('/api/reports', require('./routes/reportRoutes'));
+app.use('/api/notifications', require('./routes/notificationRoutes'));
 
 // Paystack Webhook endpoint
 app.post('/api/webhook/paystack', (req, res) => {

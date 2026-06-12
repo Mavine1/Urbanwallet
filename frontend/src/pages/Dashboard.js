@@ -247,6 +247,11 @@ const Dashboard = () => {
                                         ✕
                                     </button>
                                     <SendMoney
+                                        hasPin={hasPin}
+                                        onSetPin={() => {
+                                            setShowSendModal(false);
+                                            setShowPinModal(true);
+                                        }}
                                         onSuccess={() => {
                                             refreshData();
                                             setShowSendModal(false);

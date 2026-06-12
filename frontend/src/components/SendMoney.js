@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const SendMoney = ({ onSuccess, onClose }) => {
+const SendMoney = ({ onSuccess, onClose, hasPin, onSetPin }) => {
     const [recipientEmail, setRecipientEmail] = useState('');
     const [amount, setAmount] = useState('');
     const [description, setDescription] = useState('');
@@ -9,59 +9,78 @@ const SendMoney = ({ onSuccess, onClose }) => {
     const [pin, setPin] = useState('');
     const [showPinModal, setShowPinModal] = useState(false);
     const [error, setError] = useState('');
-    
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
-        
+
         if (!recipientEmail || !amount || amount <= 0) {
             setError('Please fill all fields correctly');
             return;
         }
-        
+
+        // Check if PIN is set
+        if (!hasPin) {
+            setError('Please set a transaction PIN first');
+            if (onSetPin) onSetPin();
+            return;
+        }
+
         setShowPinModal(true);
     };
-    
+
     const verifyPinAndSend = async () => {
+        if (!pin || pin.length < 4) {
+            setError('Please enter a valid PIN');
+            return;
+        }
+
         setLoading(true);
         setError('');
-        
+
         try {
             // First verify PIN
             await axios.post('http://localhost:5000/api/pin/verify', {
                 pin: pin
             });
-            
+
             // Then send money
-            const response = await axios.post('http://localhost:5000/api/transfers/send', {
+            await axios.post('http://localhost:5000/api/transfers/send', {
                 recipientEmail,
                 amount: parseFloat(amount),
                 description
             });
-            
-            alert(` Success! Sent ${amount} KES to ${recipientEmail}`);
+
+            alert(`Success! Sent ${amount} KES to ${recipientEmail}`);
             onSuccess();
-        } catch (error) {
-            setError(error.response?.data?.message || 'Transaction failed');
+        } catch (err) {
+            const errorMsg = err.response?.data?.message || 'Transaction failed';
+            setError(errorMsg);
+            setPin(''); // Clear PIN for retry
         } finally {
             setLoading(false);
-            setShowPinModal(false);
         }
     };
-    
+
+    const closePinModal = () => {
+        setShowPinModal(false);
+        setPin('');
+        setError('');
+    };
+
     return (
         <>
             <div className="card p-6">
                 <h3 className="text-xl font-semibold text-urban-blue-400 mb-4">
                     Send Money
                 </h3>
-                
-                {error && (
+
+                {error && !showPinModal && (
                     <div className="mb-4 p-3 bg-red-500/10 border border-red-500 rounded-lg text-red-500 text-sm">
                         {error}
                     </div>
                 )}
-                
+
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
                         <label className="text-gray-400 text-sm mb-1 block">Recipient Email</label>
@@ -74,7 +93,7 @@ const SendMoney = ({ onSuccess, onClose }) => {
                             required
                         />
                     </div>
-                    
+
                     <div className="mb-4">
                         <label className="text-gray-400 text-sm mb-1 block">Amount (KES)</label>
                         <input
@@ -86,7 +105,7 @@ const SendMoney = ({ onSuccess, onClose }) => {
                             required
                         />
                     </div>
-                    
+
                     <div className="mb-6">
                         <label className="text-gray-400 text-sm mb-1 block">Description (Optional)</label>
                         <input
@@ -97,23 +116,25 @@ const SendMoney = ({ onSuccess, onClose }) => {
                             onChange={(e) => setDescription(e.target.value)}
                         />
                     </div>
-                    
+
                     <button type="submit" className="btn-primary w-full">
                         Continue
                     </button>
                 </form>
-                
-                <button 
+
+                <button
                     onClick={onClose}
                     className="w-full mt-3 text-gray-400 hover:text-white transition"
                 >
                     Cancel
                 </button>
             </div>
-            
+
             {/* PIN Modal */}
             {showPinModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50">
+                <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50" onClick={(e) => {
+                    if (e.target === e.currentTarget) closePinModal();
+                }}>
                     <div className="bg-urban-dark-200 p-6 rounded-lg max-w-md w-full border border-urban-blue-800">
                         <h3 className="text-xl font-semibold mb-4 text-center">Enter Transaction PIN</h3>
                         <p className="text-gray-400 text-center mb-4">
@@ -130,13 +151,13 @@ const SendMoney = ({ onSuccess, onClose }) => {
                         />
                         {error && <p className="text-red-500 text-sm mb-4 text-center">{error}</p>}
                         <div className="flex gap-3">
-                            <button 
-                                onClick={() => setShowPinModal(false)}
+                            <button
+                                onClick={closePinModal}
                                 className="flex-1 bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition"
                             >
                                 Cancel
                             </button>
-                            <button 
+                            <button
                                 onClick={verifyPinAndSend}
                                 disabled={loading || !pin}
                                 className="flex-1 btn-primary"

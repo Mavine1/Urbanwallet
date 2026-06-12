@@ -231,14 +231,28 @@ const Dashboard = () => {
 
                         {/* Modals */}
                         {showDepositModal && (
-                            <DepositModal
-                                onClose={() => setShowDepositModal(false)}
-                                onDeposit={handleDeposit}
-                            />
+                            <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4" onClick={(e) => {
+                                if (e.target === e.currentTarget) setShowDepositModal(false);
+                            }}>
+                                <div className="relative max-w-md w-full">
+                                    <button
+                                        onClick={() => setShowDepositModal(false)}
+                                        className="absolute -top-10 right-0 text-white text-2xl hover:text-gray-300"
+                                    >
+                                        ✕
+                                    </button>
+                                    <DepositModal
+                                        onClose={() => setShowDepositModal(false)}
+                                        onDeposit={handleDeposit}
+                                    />
+                                </div>
+                            </div>
                         )}
 
                         {showSendModal && (
-                            <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
+                            <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4" onClick={(e) => {
+                                if (e.target === e.currentTarget) setShowSendModal(false);
+                            }}>
                                 <div className="relative max-w-md w-full">
                                     <button
                                         onClick={() => setShowSendModal(false)}
@@ -263,7 +277,9 @@ const Dashboard = () => {
                         )}
 
                         {showAirtimeModal && (
-                            <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
+                            <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4" onClick={(e) => {
+                                if (e.target === e.currentTarget) setShowAirtimeModal(false);
+                            }}>
                                 <div className="relative max-w-md w-full">
                                     <button
                                         onClick={() => setShowAirtimeModal(false)}
@@ -283,7 +299,9 @@ const Dashboard = () => {
                         )}
 
                         {showPinModal && (
-                            <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
+                            <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4" onClick={(e) => {
+                                if (e.target === e.currentTarget) setShowPinModal(false);
+                            }}>
                                 <div className="relative max-w-md w-full">
                                     <button
                                         onClick={() => setShowPinModal(false)}

@@ -3,6 +3,7 @@ module.exports = {
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
@@ -19,10 +20,15 @@ module.exports = {
           300: '#0a0a0a',
           400: '#050505',
           500: '#000000',
-        }
+        },
+        'light-bg': '#f8fafc',
+        'light-card': '#ffffff',
+        'light-text': '#1e293b',
+        'light-muted': '#64748b',
       },
       boxShadow: {
         'blue-glow': '0 0 20px rgba(59, 130, 246, 0.3)',
+        'dark-card': '0 4px 6px -1px rgba(0, 0, 0, 0.3)',
       }
     },
   },

@@ -3,38 +3,82 @@
 @tailwind utilities;
 
 @layer base {
-  body {
-    @apply bg-gradient-to-br from-urban-dark-300 to-urban-dark-500 min-h-screen font-sans;
+  /* Dark theme (default) */
+  .dark body {
+    @apply bg-gradient-to-br from-urban-dark-300 to-urban-dark-500 min-h-screen font-sans text-white;
   }
-  
+
+  /* Light theme */
+  body {
+    @apply bg-gradient-to-br from-slate-100 to-slate-200 min-h-screen font-sans text-slate-800;
+  }
+
   ::-webkit-scrollbar {
     @apply w-2;
   }
-  
+
   ::-webkit-scrollbar-track {
-    @apply bg-urban-dark-200 rounded;
+    @apply bg-gray-200 dark:bg-urban-dark-200 rounded;
   }
-  
+
   ::-webkit-scrollbar-thumb {
-    @apply bg-urban-blue-800 rounded hover:bg-urban-blue-600;
+    @apply bg-gray-400 dark:bg-urban-blue-800 rounded hover:bg-gray-500 dark:hover:bg-urban-blue-600;
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-gradient-to-r from-urban-blue-800 to-black border border-urban-blue-500 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 hover:from-urban-blue-600 hover:to-urban-dark-400 hover:transform hover:-translate-y-1 hover:shadow-blue-glow active:transform active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed;
+    @apply bg-gradient-to-r from-urban-blue-800 to-black dark:from-urban-blue-800 dark:to-black text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 hover:from-urban-blue-600 hover:to-urban-dark-400 hover:transform hover:-translate-y-1 hover:shadow-blue-glow active:transform active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed;
   }
-  
+
+  .light .btn-primary {
+    @apply from-blue-600 to-blue-800 hover:from-blue-500 hover:to-blue-700;
+  }
+
   .btn-secondary {
-    @apply bg-urban-blue-800 text-white px-4 py-2 rounded-lg transition-all duration-300 hover:bg-urban-blue-600 hover:transform hover:-translate-y-1;
+    @apply bg-urban-blue-800 dark:bg-urban-blue-800 text-white px-4 py-2 rounded-lg transition-all duration-300 hover:bg-urban-blue-600 hover:transform hover:-translate-y-1;
   }
-  
+
+  .light .btn-secondary {
+    @apply bg-blue-600 hover:bg-blue-700;
+  }
+
   .card {
-    @apply bg-urban-dark-200 border border-urban-blue-800 rounded-2xl shadow-xl;
+    @apply bg-white dark:bg-urban-dark-200 border border-gray-200 dark:border-urban-blue-800 rounded-2xl shadow-xl;
   }
-  
+
   .input-field {
-    @apply w-full px-4 py-3 bg-black border-2 border-urban-blue-800 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-urban-blue-500 focus:ring-2 focus:ring-urban-blue-500/20 transition-all duration-300;
+    @apply w-full px-4 py-3 bg-gray-50 dark:bg-black border-2 border-gray-300 dark:border-urban-blue-800 rounded-lg text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-600 focus:outline-none focus:border-urban-blue-500 dark:focus:border-urban-blue-500 focus:ring-2 focus:ring-urban-blue-500/20 transition-all duration-300;
+  }
+
+  .sidebar {
+    @apply fixed left-0 top-0 h-full w-64 bg-white dark:bg-urban-dark-200 border-r border-gray-200 dark:border-urban-blue-800 transition-all duration-300 z-40;
+  }
+
+  .navbar {
+    @apply fixed top-0 left-0 right-0 h-16 bg-white dark:bg-urban-dark-200 border-b border-gray-200 dark:border-urban-blue-800 flex items-center justify-between px-6 z-30;
+  }
+
+  .main-content {
+    @apply ml-64 pt-16 min-h-screen transition-all duration-300;
+  }
+
+  .light .sidebar,
+  .light .navbar {
+    @apply bg-white border-gray-200;
+  }
+
+  .light .card {
+    @apply bg-white border-gray-200;
+  }
+
+  .light .text-urban-blue-500 {
+    @apply text-blue-600;
+  }
+
+  .light .text-gray-400,
+  .light .text-gray-500 {
+    @apply text-gray-600;
   }
 }
 
@@ -64,4 +108,9 @@
 
 .animate-pulse-slow {
   animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Theme transition */
+body, .card, .btn-primary, .btn-secondary, .input-field {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }

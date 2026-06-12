@@ -2,11 +2,11 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
-import Login from './components/Login';
-import Register from './components/Register';
-import Dashboard from './components/Dashboard';
-import LandingPage from './components/LandingPage';
-import Profile from './components/Profile';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
+import LandingPage from './pages/LandingPage';
+import Profile from './pages/Profile';
 
 const PrivateRoute = ({ children }) => {
     const { user, loading } = useAuth();

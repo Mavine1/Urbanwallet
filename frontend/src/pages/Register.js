@@ -126,7 +126,9 @@ const Register = () => {
 
             {/* PIN Setup Modal */}
             {showPinModal && registered && (
-                <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4">
+                <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4" onClick={(e) => {
+                    if (e.target === e.currentTarget) skipPin();
+                }}>
                     <div className="relative max-w-md w-full">
                         <div className="text-center mb-4">
                             <h2 className="text-2xl font-bold text-urban-blue-400">Set Up PIN</h2>

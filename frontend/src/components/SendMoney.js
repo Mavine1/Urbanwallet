@@ -52,7 +52,7 @@ const SendMoney = ({ onSuccess, onClose }) => {
     return (
         <>
             <div className="card p-6">
-                <h3 className="text-xl font-semibold text-urban-blue-400 mb-4 flex items-center gap-2">
+                <h3 className="text-xl font-semibold text-urban-blue-400 mb-4">
                     Send Money
                 </h3>
                 

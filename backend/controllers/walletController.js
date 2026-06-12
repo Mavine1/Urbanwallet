@@ -16,11 +16,14 @@ exports.initializeDeposit = async (req, res) => {
         const { amount } = req.body;
         const user = await User.findById(req.user.id);
         
+        if (!amount || amount < 10) {
+            return res.status(400).json({ message: 'Amount must be at least 10 KES' });
+        }
+        
         const reference = `URBAN_${Date.now()}_${user._id}`;
         
         const payment = await initializePayment(user.email, amount, reference);
         
-        // Create transaction record
         await Transaction.create({
             user: user._id,
             type: 'deposit',
@@ -33,7 +36,9 @@ exports.initializeDeposit = async (req, res) => {
             authorization_url: payment.data.authorization_url,
             reference 
         });
+        
     } catch (error) {
+        console.error('Deposit init error:', error);
         res.status(500).json({ message: error.message });
     }
 };
@@ -48,12 +53,10 @@ exports.verifyDeposit = async (req, res) => {
             const transaction = await Transaction.findOne({ reference });
             
             if (transaction && transaction.status === 'pending') {
-                // Update transaction status
                 transaction.status = 'success';
                 transaction.paystackData = verification.data;
                 await transaction.save();
                 
-                // Update user balance
                 const user = await User.findById(transaction.user);
                 user.walletBalance += transaction.amount;
                 await user.save();
@@ -63,6 +66,8 @@ exports.verifyDeposit = async (req, res) => {
                     message: 'Deposit successful',
                     balance: user.walletBalance
                 });
+            } else {
+                res.json({ success: false, message: 'Transaction already processed' });
             }
         } else {
             await Transaction.findOneAndUpdate(
@@ -71,17 +76,9 @@ exports.verifyDeposit = async (req, res) => {
             );
             res.json({ success: false, message: 'Payment failed' });
         }
+        
     } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
-
-exports.getTransactions = async (req, res) => {
-    try {
-        const transactions = await Transaction.find({ user: req.user.id })
-            .sort({ createdAt: -1 });
-        res.json(transactions);
-    } catch (error) {
+        console.error('Verify deposit error:', error);
         res.status(500).json({ message: error.message });
     }
 };

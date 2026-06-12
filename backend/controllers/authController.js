@@ -106,3 +106,79 @@ exports.updateProfile = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+// Google Login (mock - in production use real Google OAuth)
+exports.googleLogin = async (req, res) => {
+    try {
+        const { googleId, email, name, avatar } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ message: 'Google account email is required' });
+        }
+
+        let user = await User.findOne({ email });
+
+        // Create user if doesn't exist (Google OAuth sign up)
+        if (!user) {
+            user = await User.create({
+                name: name || email.split('@')[0],
+                email,
+                password: googleId + '_google_oauth', // Dummy password for OAuth users
+                isGoogleAccount: true
+            });
+        }
+
+        const token = generateToken(user._id);
+
+        res.json({
+            success: true,
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            walletBalance: user.walletBalance,
+            isGoogleAccount: user.isGoogleAccount,
+            token: token
+        });
+
+    } catch (error) {
+        console.error('Google login error:', error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// Update Password
+exports.updatePassword = async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+        const user = await User.findById(req.user.id);
+
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({ message: 'Please provide current and new password' });
+        }
+
+        // Check if user has a password (Google users can't change password)
+        if (user.isGoogleAccount) {
+            return res.status(400).json({ message: 'Google accounts cannot change password' });
+        }
+
+        // Verify current password
+        const isMatch = await user.comparePassword(currentPassword);
+        if (!isMatch) {
+            return res.status(401).json({ message: 'Current password is incorrect' });
+        }
+
+        // Validate new password
+        if (newPassword.length < 6) {
+            return res.status(400).json({ message: 'New password must be at least 6 characters' });
+        }
+
+        user.password = newPassword;
+        await user.save();
+
+        res.json({ success: true, message: 'Password updated successfully' });
+
+    } catch (error) {
+        console.error('Update password error:', error);
+        res.status(500).json({ message: error.message });
+    }
+};

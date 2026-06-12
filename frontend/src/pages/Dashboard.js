@@ -231,7 +231,7 @@ const Dashboard = () => {
 
                         {/* Modals */}
                         {showDepositModal && (
-                            <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4" onClick={(e) => {
+                            <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4" onMouseDown={(e) => {
                                 if (e.target === e.currentTarget) setShowDepositModal(false);
                             }}>
                                 <div className="relative max-w-md w-full">
@@ -299,7 +299,7 @@ const Dashboard = () => {
                         )}
 
                         {showPinModal && (
-                            <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4" onClick={(e) => {
+                            <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4" onMouseDown={(e) => {
                                 if (e.target === e.currentTarget) setShowPinModal(false);
                             }}>
                                 <div className="relative max-w-md w-full">

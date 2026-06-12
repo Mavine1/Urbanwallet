@@ -2,14 +2,24 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import SendMoney from './SendMoney';
+import BuyAirtime from './BuyAirtime';
+import TransactionHistory from './TransactionHistory';
+import SetPin from './SetPin';
+import DepositModal from './DepositModal';
 
 const Dashboard = () => {
-    const { user, logout } = useAuth();
+    const { user, logout, updateBalance } = useAuth();
     const navigate = useNavigate();
     const [balance, setBalance] = useState(0);
-    const [transactions, setTransactions] = useState([]);
-    const [amount, setAmount] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [showSendModal, setShowSendModal] = useState(false);
+    const [showAirtimeModal, setShowAirtimeModal] = useState(false);
+    const [showHistory, setShowHistory] = useState(false);
+    const [showPinModal, setShowPinModal] = useState(false);
+    const [showDepositModal, setShowDepositModal] = useState(false);
+    const [hasPin, setHasPin] = useState(false);
+    const [summary, setSummary] = useState(null);
     
     useEffect(() => {
         if (!user) {
@@ -17,48 +27,52 @@ const Dashboard = () => {
             return;
         }
         fetchBalance();
-        fetchTransactions();
+        fetchHasPin();
+        fetchSummary();
     }, [user, navigate]);
     
     const fetchBalance = async () => {
         try {
             const response = await axios.get('http://localhost:5000/api/wallet/balance');
             setBalance(response.data.balance);
+            updateBalance(response.data.balance);
         } catch (error) {
             console.error('Error fetching balance:', error);
             if (error.response?.status === 401) {
                 logout();
                 navigate('/login');
             }
+        } finally {
+            setLoading(false);
         }
     };
     
-    const fetchTransactions = async () => {
+    const fetchHasPin = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/wallet/transactions');
-            setTransactions(response.data);
+            const response = await axios.get('http://localhost:5000/api/pin/has');
+            setHasPin(response.data.hasPin);
         } catch (error) {
-            console.error('Error fetching transactions:', error);
+            console.error('Error checking PIN:', error);
         }
     };
     
-    const handleDeposit = async () => {
-        if (!amount || amount <= 0) {
-            alert('Please enter a valid amount');
-            return;
+    const fetchSummary = async () => {
+        try {
+            const response = await axios.get('http://localhost:5000/api/reports/summary');
+            setSummary(response.data);
+        } catch (error) {
+            console.error('Error fetching summary:', error);
         }
-        
-        setLoading(true);
+    };
+    
+    const handleDeposit = async (amount) => {
         try {
             const response = await axios.post('http://localhost:5000/api/wallet/deposit/initialize', {
                 amount: parseFloat(amount)
             });
             window.location.href = response.data.authorization_url;
         } catch (error) {
-            console.error('Deposit failed:', error);
-            alert('Deposit failed. Please try again.');
-        } finally {
-            setLoading(false);
+            alert(error.response?.data?.message || 'Deposit failed');
         }
     };
     
@@ -67,105 +81,201 @@ const Dashboard = () => {
         navigate('/login');
     };
     
+    const refreshData = () => {
+        fetchBalance();
+        fetchSummary();
+    };
+    
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-urban-blue-500 border-t-transparent"></div>
+                    <p className="mt-4 text-gray-400">Loading your wallet...</p>
+                </div>
+            </div>
+        );
+    }
+    
     return (
         <div className="max-w-7xl mx-auto px-4 py-6">
             {/* Header */}
-            <div className="flex justify-between items-center mb-8 pb-4 border-b-2 border-urban-blue-800">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 pb-4 border-b-2 border-urban-blue-800">
                 <div>
-                    <h1 className="text-3xl font-bold text-urban-blue-500">💰 UrbanWallet</h1>
+                    <h1 className="text-3xl font-bold text-urban-blue-500 flex items-center gap-2">
+                        💰 UrbanWallet
+                    </h1>
                     <p className="text-gray-400 text-sm mt-1">Your Secure Digital Wallet</p>
                 </div>
-                <div className="flex items-center gap-4">
-                    <span className="text-gray-300">Welcome, <span className="text-urban-blue-400 font-semibold">{user?.name}</span>!</span>
+                <div className="flex items-center gap-4 mt-4 md:mt-0">
+                    <span className="text-gray-300">
+                        Welcome, <span className="text-urban-blue-400 font-semibold">{user?.name}</span>!
+                    </span>
                     <button onClick={handleLogout} className="btn-secondary">
                         Logout
                     </button>
                 </div>
             </div>
             
-            {/* Wallet Card */}
+            {/* Quick Actions Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+                <button 
+                    onClick={() => setShowDepositModal(true)}
+                    className="card p-4 hover:border-urban-blue-500 transition-all group"
+                >
+                    <div className="text-3xl mb-2 group-hover:scale-110 transition-transform">💰</div>
+                    <div className="font-semibold text-sm">Deposit</div>
+                </button>
+                
+                <button 
+                    onClick={() => {
+                        if (!hasPin) {
+                            setShowPinModal(true);
+                        } else {
+                            setShowSendModal(true);
+                        }
+                    }}
+                    className="card p-4 hover:border-urban-blue-500 transition-all group"
+                >
+                    <div className="text-3xl mb-2 group-hover:scale-110 transition-transform">📤</div>
+                    <div className="font-semibold text-sm">Send Money</div>
+                </button>
+                
+                <button 
+                    onClick={() => setShowAirtimeModal(true)}
+                    className="card p-4 hover:border-urban-blue-500 transition-all group"
+                >
+                    <div className="text-3xl mb-2 group-hover:scale-110 transition-transform">📱</div>
+                    <div className="font-semibold text-sm">Buy Airtime</div>
+                </button>
+                
+                <button 
+                    onClick={() => setShowHistory(!showHistory)}
+                    className="card p-4 hover:border-urban-blue-500 transition-all group"
+                >
+                    <div className="text-3xl mb-2 group-hover:scale-110 transition-transform">📊</div>
+                    <div className="font-semibold text-sm">History</div>
+                </button>
+                
+                <button 
+                    onClick={() => setShowPinModal(true)}
+                    className="card p-4 hover:border-urban-blue-500 transition-all group"
+                >
+                    <div className="text-3xl mb-2 group-hover:scale-110 transition-transform">🔒</div>
+                    <div className="font-semibold text-sm">{hasPin ? 'Change PIN' : 'Set PIN'}</div>
+                </button>
+            </div>
+            
+            {/* Wallet Balance Card */}
             <div className="card p-8 mb-8 text-center relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-urban-blue-500/5 to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-urban-blue-500/10 to-transparent"></div>
                 <div className="relative z-10">
                     <h2 className="text-gray-400 text-sm uppercase tracking-wider mb-2">Wallet Balance</h2>
-                    <div className="text-6xl font-bold text-urban-blue-500 mb-2 animate-pulse-slow">
-                        KSh {balance.toLocaleString()}
+                    <div className="text-5xl md:text-6xl font-bold text-urban-blue-500 mb-2 animate-pulse-slow">
+                        KES {balance.toLocaleString()}
                     </div>
                     <p className="text-gray-500 text-sm">Available Balance</p>
                 </div>
             </div>
             
-            {/* Deposit Section */}
-            <div className="card p-6 mb-8">
-                <h3 className="text-xl font-semibold text-urban-blue-400 mb-4">💳 Fund Your Wallet</h3>
-                <div className="space-y-4">
-                    <input
-                        type="number"
-                        placeholder="Enter amount (KSh)"
-                        className="input-field"
-                        value={amount}
-                        onChange={(e) => setAmount(e.target.value)}
-                        disabled={loading}
-                    />
-                    <button onClick={handleDeposit} className="btn-primary w-full" disabled={loading}>
-                        {loading ? (
-                            <span className="flex items-center justify-center gap-2">
-                                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
-                                </svg>
-                                Processing...
-                            </span>
-                        ) : (
-                            'Deposit with Paystack'
-                        )}
-                    </button>
+            {/* Summary Cards */}
+            {summary && (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                    <div className="card p-4 text-center">
+                        <p className="text-gray-400 text-xs uppercase">Total Sent</p>
+                        <p className="text-xl font-bold text-red-500">KES {summary.totalSent.toLocaleString()}</p>
+                    </div>
+                    <div className="card p-4 text-center">
+                        <p className="text-gray-400 text-xs uppercase">Total Received</p>
+                        <p className="text-xl font-bold text-green-500">KES {summary.totalReceived.toLocaleString()}</p>
+                    </div>
+                    <div className="card p-4 text-center">
+                        <p className="text-gray-400 text-xs uppercase">Airtime</p>
+                        <p className="text-xl font-bold text-blue-500">KES {summary.totalAirtime.toLocaleString()}</p>
+                    </div>
+                    <div className="card p-4 text-center">
+                        <p className="text-gray-400 text-xs uppercase">Deposits</p>
+                        <p className="text-xl font-bold text-urban-blue-400">KES {summary.totalDeposits.toLocaleString()}</p>
+                    </div>
                 </div>
-            </div>
+            )}
             
-            {/* Transactions Section */}
-            <div className="card p-6">
-                <h3 className="text-xl font-semibold text-urban-blue-400 mb-4">📊 Transaction History</h3>
-                {transactions.length === 0 ? (
-                    <div className="text-center py-12">
-                        <p className="text-gray-500">No transactions yet</p>
-                        <p className="text-gray-600 text-sm mt-2">Make a deposit to get started</p>
+            {/* Transaction History Section */}
+            {showHistory && (
+                <div className="mt-6">
+                    <TransactionHistory />
+                </div>
+            )}
+            
+            {/* Modals */}
+            {showDepositModal && (
+                <DepositModal 
+                    onClose={() => setShowDepositModal(false)}
+                    onDeposit={handleDeposit}
+                />
+            )}
+            
+            {showSendModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
+                    <div className="relative max-w-md w-full">
+                        <button 
+                            onClick={() => setShowSendModal(false)}
+                            className="absolute -top-10 right-0 text-white text-2xl hover:text-gray-300"
+                        >
+                            ✕
+                        </button>
+                        <SendMoney 
+                            onSuccess={() => {
+                                refreshData();
+                                setShowSendModal(false);
+                            }}
+                            onClose={() => setShowSendModal(false)}
+                        />
                     </div>
-                ) : (
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead>
-                                <tr className="border-b border-urban-blue-800">
-                                    <th className="text-left py-3 px-4 text-gray-400 font-semibold">Date</th>
-                                    <th className="text-left py-3 px-4 text-gray-400 font-semibold">Type</th>
-                                    <th className="text-left py-3 px-4 text-gray-400 font-semibold">Amount</th>
-                                    <th className="text-left py-3 px-4 text-gray-400 font-semibold">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {transactions.map((tx) => (
-                                    <tr key={tx._id} className="border-b border-urban-blue-800/50 hover:bg-urban-dark-100 transition-colors">
-                                        <td className="py-3 px-4 text-gray-300">
-                                            {new Date(tx.createdAt).toLocaleDateString()}
-                                        </td>
-                                        <td className="py-3 px-4 text-gray-300 capitalize">
-                                            {tx.type}
-                                        </td>
-                                        <td className="py-3 px-4 text-gray-300 font-semibold">
-                                            KSh {tx.amount.toLocaleString()}
-                                        </td>
-                                        <td className="py-3 px-4">
-                                            <span className={`status-${tx.status}`}>
-                                                {tx.status}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                </div>
+            )}
+            
+            {showAirtimeModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
+                    <div className="relative max-w-md w-full">
+                        <button 
+                            onClick={() => setShowAirtimeModal(false)}
+                            className="absolute -top-10 right-0 text-white text-2xl hover:text-gray-300"
+                        >
+                            ✕
+                        </button>
+                        <BuyAirtime 
+                            onSuccess={() => {
+                                refreshData();
+                                setShowAirtimeModal(false);
+                            }}
+                            onClose={() => setShowAirtimeModal(false)}
+                        />
                     </div>
-                )}
-            </div>
+                </div>
+            )}
+            
+            {showPinModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
+                    <div className="relative max-w-md w-full">
+                        <button 
+                            onClick={() => setShowPinModal(false)}
+                            className="absolute -top-10 right-0 text-white text-2xl hover:text-gray-300"
+                        >
+                            ✕
+                        </button>
+                        <SetPin 
+                            hasPin={hasPin}
+                            onSuccess={() => {
+                                fetchHasPin();
+                                setShowPinModal(false);
+                                alert(hasPin ? 'PIN changed successfully!' : 'PIN set successfully!');
+                            }}
+                            onClose={() => setShowPinModal(false)}
+                        />
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

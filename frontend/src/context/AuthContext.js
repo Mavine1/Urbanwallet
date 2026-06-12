@@ -51,8 +51,16 @@ export const AuthProvider = ({ children }) => {
         delete axios.defaults.headers.common['Authorization'];
     };
     
+    const updateBalance = (newBalance) => {
+        if (user) {
+            const updatedUser = { ...user, walletBalance: newBalance };
+            setUser(updatedUser);
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+        }
+    };
+    
     return (
-        <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+        <AuthContext.Provider value={{ user, login, register, logout, loading, updateBalance }}>
             {children}
         </AuthContext.Provider>
     );

@@ -29,8 +29,9 @@ const Login = () => {
         <div className="min-h-screen flex items-center justify-center px-4">
             <div className="card w-full max-w-md p-8 animate-slide-up">
                 <div className="text-center mb-8">
-                    <h1 className="text-4xl font-bold text-urban-blue-500 mb-2">UrbanWallet</h1>
-                    <p className="text-gray-400">Secure Digital Wallet</p>
+                    <div className="text-5xl mb-3">💰</div>
+                    <h1 className="text-3xl font-bold text-urban-blue-500">UrbanWallet</h1>
+                    <p className="text-gray-400 mt-2">Secure Digital Wallet</p>
                 </div>
                 
                 <form onSubmit={handleSubmit}>

@@ -35,10 +35,23 @@ exports.initializeDeposit = async (req, res) => {
         // Add funds immediately for demo purposes
         user.walletBalance += parseFloat(amount);
         await user.save();
-        
-        res.json({ 
+
+        // Add notification for deposit
+        const axios = require('axios');
+        try {
+            await axios.post('http://localhost:5000/api/notifications', {
+                title: 'Deposit Successful',
+                message: `Your deposit of KES ${parseFloat(amount).toLocaleString()} has been received.`
+            }, {
+                headers: { 'Content-Type': 'application/json' }
+            });
+        } catch (notifError) {
+            console.log('Notification error:', notifError.message);
+        }
+
+        res.json({
             authorization_url: payment.data.authorization_url,
-            reference 
+            reference
         });
         
     } catch (error) {

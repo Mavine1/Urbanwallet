@@ -12,6 +12,20 @@ router.get('/', (req, res) => {
     res.json({ notifications });
 });
 
+// Add new notification
+router.post('/', (req, res) => {
+    const { title, message } = req.body;
+    const newNotification = {
+        id: notifications.length + 1,
+        title,
+        message,
+        read: false,
+        createdAt: new Date().toISOString()
+    };
+    notifications.unshift(newNotification);
+    res.json({ success: true, notification: newNotification });
+});
+
 // Mark notification as read
 router.put('/:id/read', (req, res) => {
     const { id } = req.params;

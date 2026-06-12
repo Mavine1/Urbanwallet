@@ -48,8 +48,8 @@ const SetPin = ({ hasPin, onSuccess, onClose }) => {
     
     return (
         <div className="card p-6">
-            <h3 className="text-xl font-semibold text-urban-blue-400 mb-4 flex items-center gap-2">
-                🔒 {hasPin ? 'Change Transaction PIN' : 'Set Transaction PIN'}
+            <h3 className="text-xl font-semibold text-urban-blue-400 mb-4">
+                {hasPin ? 'Change Transaction PIN' : 'Set Transaction PIN'}
             </h3>
             
             <p className="text-gray-400 text-sm mb-4">

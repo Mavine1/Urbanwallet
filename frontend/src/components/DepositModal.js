@@ -27,8 +27,8 @@ const DepositModal = ({ onClose, onDeposit }) => {
     
     return (
         <div className="card p-6">
-            <h3 className="text-xl font-semibold text-urban-blue-400 mb-4 flex items-center gap-2">
-                💰 Deposit Money
+            <h3 className="text-xl font-semibold text-urban-blue-400 mb-4">
+                Deposit Money
             </h3>
             
             {error && (
@@ -67,7 +67,7 @@ const DepositModal = ({ onClose, onDeposit }) => {
                 
                 <div className="mb-4 p-3 bg-urban-blue-500/10 border border-urban-blue-500 rounded-lg">
                     <p className="text-sm text-gray-300">
-                        💳 You will be redirected to Paystack to complete your payment securely.
+                        You will be redirected to Paystack to complete your payment securely.
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
                         Supported: M-PESA, Cards, Apple Pay

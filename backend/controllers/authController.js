@@ -86,3 +86,23 @@ exports.getMe = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+exports.updateProfile = async (req, res) => {
+    try {
+        const { name } = req.body;
+        const user = await User.findById(req.user.id);
+
+        if (name) user.name = name;
+
+        await user.save();
+
+        res.json({
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            walletBalance: user.walletBalance
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

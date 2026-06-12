@@ -13,6 +13,15 @@ const Profile = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
+    // Password update state
+    const [showPasswordForm, setShowPasswordForm] = useState(false);
+    const [currentPassword, setCurrentPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [passwordLoading, setPasswordLoading] = useState(false);
+    const [passwordError, setPasswordError] = useState('');
+    const [passwordSuccess, setPasswordSuccess] = useState('');
+
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -54,6 +63,40 @@ const Profile = () => {
             setSuccess('Profile updated successfully!');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handlePasswordUpdate = async (e) => {
+        e.preventDefault();
+        setPasswordError('');
+        setPasswordSuccess('');
+
+        if (newPassword !== confirmPassword) {
+            setPasswordError('New passwords do not match');
+            return;
+        }
+
+        if (newPassword.length < 6) {
+            setPasswordError('New password must be at least 6 characters');
+            return;
+        }
+
+        setPasswordLoading(true);
+
+        try {
+            await axios.put('http://localhost:5000/api/auth/password', {
+                currentPassword,
+                newPassword
+            });
+            setPasswordSuccess('Password updated successfully!');
+            setCurrentPassword('');
+            setNewPassword('');
+            setConfirmPassword('');
+            setShowPasswordForm(false);
+        } catch (err) {
+            setPasswordError(err.response?.data?.message || 'Failed to update password');
+        } finally {
+            setPasswordLoading(false);
         }
     };
 
@@ -143,6 +186,97 @@ const Profile = () => {
                         </button>
                     </div>
                 </form>
+            </div>
+
+            {/* Password Update Section */}
+            <div className="card p-8 mt-6">
+                <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-2xl font-bold">Change Password</h2>
+                    {!showPasswordForm && (
+                        <button
+                            onClick={() => setShowPasswordForm(true)}
+                            className="btn-secondary"
+                        >
+                            Update Password
+                        </button>
+                    )}
+                </div>
+
+                {passwordError && (
+                    <div className="mb-4 p-3 bg-red-500/10 border border-red-500 rounded-lg text-red-500 text-sm">
+                        {passwordError}
+                    </div>
+                )}
+
+                {passwordSuccess && (
+                    <div className="mb-4 p-3 bg-green-500/10 border border-green-500 rounded-lg text-green-500 text-sm">
+                        {passwordSuccess}
+                    </div>
+                )}
+
+                {showPasswordForm ? (
+                    <form onSubmit={handlePasswordUpdate}>
+                        <div className="mb-4">
+                            <label className="text-gray-400 text-sm mb-2 block">Current Password</label>
+                            <input
+                                type="password"
+                                value={currentPassword}
+                                onChange={(e) => setCurrentPassword(e.target.value)}
+                                className="input-field"
+                                required
+                            />
+                        </div>
+
+                        <div className="mb-4">
+                            <label className="text-gray-400 text-sm mb-2 block">New Password</label>
+                            <input
+                                type="password"
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                                className="input-field"
+                                required
+                            />
+                        </div>
+
+                        <div className="mb-6">
+                            <label className="text-gray-400 text-sm mb-2 block">Confirm New Password</label>
+                            <input
+                                type="password"
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                className="input-field"
+                                required
+                            />
+                        </div>
+
+                        <div className="flex gap-4">
+                            <button
+                                type="submit"
+                                className="btn-primary flex-1"
+                                disabled={passwordLoading}
+                            >
+                                {passwordLoading ? 'Updating...' : 'Update Password'}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setShowPasswordForm(false);
+                                    setPasswordError('');
+                                    setCurrentPassword('');
+                                    setNewPassword('');
+                                    setConfirmPassword('');
+                                }}
+                                className="btn-secondary"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                ) : (
+                    <p className="text-gray-500 text-sm">
+                        Click "Update Password" to change your password.
+                    </p>
+                )}
             </div>
         </div>
     );

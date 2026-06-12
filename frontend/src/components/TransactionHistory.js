@@ -52,34 +52,34 @@ const TransactionHistory = () => {
         }
     };
     
-    const getTypeIcon = (type) => {
+    const getTypeName = (type) => {
         switch(type) {
-            case 'deposit': return '💰';
-            case 'transfer_sent': return '📤';
-            case 'transfer_received': return '📥';
-            case 'airtime': return '📱';
-            default: return '💳';
+            case 'deposit': return 'Deposit';
+            case 'transfer_sent': return 'Sent';
+            case 'transfer_received': return 'Received';
+            case 'airtime': return 'Airtime';
+            default: return 'Transaction';
         }
     };
-    
+
     const getTypeColor = (type) => {
         if (type === 'transfer_sent' || type === 'airtime') return 'text-red-500';
         if (type === 'transfer_received' || type === 'deposit') return 'text-green-500';
         return 'text-gray-400';
     };
-    
+
     return (
         <div className="card p-6">
             <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-semibold text-urban-blue-400 flex items-center gap-2">
-                    📊 Transaction History
+                <h3 className="text-xl font-semibold text-urban-blue-400">
+                    Transaction History
                 </h3>
-                <button 
+                <button
                     onClick={exportToCSV}
                     disabled={exporting}
                     className="btn-secondary text-sm"
                 >
-                    {exporting ? 'Exporting...' : '📥 Export CSV'}
+                    {exporting ? 'Exporting...' : 'Export CSV'}
                 </button>
             </div>
             
@@ -150,10 +150,7 @@ const TransactionHistory = () => {
                                             </div>
                                         </td>
                                         <td className="py-3 px-4">
-                                            <span className="flex items-center gap-2">
-                                                {getTypeIcon(tx.type)}
-                                                <span className="capitalize">{tx.type.replace('_', ' ')}</span>
-                                            </span>
+                                            <span className="capitalize">{getTypeName(tx.type)}</span>
                                         </td>
                                         <td className="py-3 px-4 text-gray-400 text-sm">
                                             {tx.description || '-'}

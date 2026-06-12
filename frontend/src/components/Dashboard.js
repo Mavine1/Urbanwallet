@@ -39,7 +39,7 @@ const Dashboard = () => {
             setShowDepositModal(true);
         } else if (params.get('action') === 'send') {
             setShowSendModal(true);
-        } else if (params.get('action') === 'airtime')) {
+        } else if (params.get('action') === 'airtime') {
             setShowAirtimeModal(true);
         } else if (params.get('action') === 'history') {
             setShowHistory(true);

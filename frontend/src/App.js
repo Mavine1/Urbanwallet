@@ -6,6 +6,7 @@ import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from './components/Dashboard';
 import LandingPage from './components/LandingPage';
+import Profile from './components/Profile';
 
 const PrivateRoute = ({ children }) => {
     const { user, loading } = useAuth();
@@ -31,6 +32,11 @@ function App() {
                         <Route path="/dashboard" element={
                             <PrivateRoute>
                                 <Dashboard />
+                            </PrivateRoute>
+                        } />
+                        <Route path="/profile" element={
+                            <PrivateRoute>
+                                <Profile />
                             </PrivateRoute>
                         } />
                         <Route path="/verify-payment" element={

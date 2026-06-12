@@ -25,6 +25,10 @@ const userSchema = new mongoose.Schema({
         default: 0,
         min: 0
     },
+    isGoogleAccount: {
+        type: Boolean,
+        default: false
+    },
     createdAt: {
         type: Date,
         default: Date.now
